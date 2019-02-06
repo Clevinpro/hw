@@ -39,7 +39,16 @@ class Notepad {
     this._notes = notes;
     this.refs = {};
     this.refs.noteList = document.querySelector('.note-list');
+    this.refs.form = document.querySelector('.note-editor');
+    this.refs.search = document.querySelector('.search-form input');
+    this.refs.noteTitle = this.refs.form.querySelector('input[name="note_title"]');
+    this.refs.noteBody = this.refs.form.querySelector('textarea[name="note_body"]');
     this.renderNoteList(this.refs.noteList, this._notes);
+    this.onSubmit = this.onSubmit.bind(this);
+    this.removeListItem = this.removeListItem.bind(this);
+    this.refs.form.addEventListener('submit', this.onSubmit);
+    this.refs.noteList.addEventListener('click', this.onNoteList.bind(this));
+    this.refs.search.addEventListener('input', this.filterNotesByQuery.bind(this))
   }
 
   static getPriorityName(priorityId) {
@@ -54,25 +63,6 @@ class Notepad {
     return this._notes = notes;
   }
 
-// <footer class="note__footer">
-//     <section class="note__section">
-//     <button class="action" data-action="decrease-priority">
-//     <i class="material-icons action__icon">expand_more</i>
-//     </button>
-//     <button class="action" data-action="increase-priority">
-//     <i class="material-icons action__icon">expand_less</i>
-//     </button>
-//     <span class="note__priority">Priority: Low</span>
-// </section>
-// <section class="note__section">
-//     <button class="action" data-action="edit-note">
-//     <i class="material-icons action__icon">edit</i>
-//     </button>
-//     <button class="action" data-action="delete-note">
-//     <i class="material-icons action__icon">delete</i>
-//     </button>
-//     </section>
-//     </footer>
 
   createNoteContent(title, body) {
     const div = document.createElement('DIV');
@@ -94,7 +84,7 @@ class Notepad {
     const footer = document.createElement('footer');
     const section = document.createElement('section');
     section.className = 'note__section';
-    const sectionSecond = section.cloneNode(true);;
+    const sectionSecond = section.cloneNode(true);
     section.appendChild(
       this.createActionButton(
         NOTE_ACTIONS.DECREASE_PRIORITY,
@@ -141,13 +131,14 @@ class Notepad {
     return button
   }
 
-  createListItem(note) {
+  createListItem(data = {}) {
     const li = document.createElement('li');
     const div = document.createElement('div');
 
     li.className = 'note-list__item';
+    li.dataset.id = data.id;
     div.className = 'note';
-    div.appendChild(this.createNoteContent(note.title, note.body));
+    div.appendChild(this.createNoteContent(data.title, data.body));
     div.appendChild(this.createNoteFooter());
     li.appendChild(div);
 
@@ -155,8 +146,9 @@ class Notepad {
   }
 
   renderNoteList(listRef, notes) {
+    listRef.innerHTML = ''; // не додумался как лучше перересовывать
     notes.forEach(el => {
-      listRef.appendChild(this.createListItem(el));
+      listRef.append(this.createListItem(el));
     })
   }
 
@@ -224,7 +216,7 @@ class Notepad {
     return updatedNote;
   }
 
-  filterNotesByQuery(query) {
+  filterNotesByQuery(e) {
     /*
      * Фильтрует массив заметок по подстроке query.
      * Если значение query есть в заголовке или теле заметки - она подходит
@@ -232,13 +224,14 @@ class Notepad {
      * Принимает: подстроку для поиска в title и body заметки
      * Возвращает: новый массив заметок, контент которых содержит подстроку
      */
-    const filtred = this.notes.filter(el => {
+    const query = e.target.value;
+    const filtred = this._notes.filter(el => {
       if (
         el.title.toLowerCase().includes(query.toLowerCase()) ||
         el.body.toLowerCase().includes(query.toLowerCase())
-      )
-        return el;
+      ) return el;
     });
+    this.renderNoteList(this.refs.noteList, filtred);
     return filtred;
   }
 
@@ -252,8 +245,59 @@ class Notepad {
      */
     return this.notes.filter(el => el.priority === priority);
   }
+
+  onSubmit(e) {
+    e.preventDefault();
+    const title = this.refs.noteTitle.value;
+    const body = this.refs.noteBody.value;
+    console.log(body, title);
+    if (title === '' && body === '') {
+      return alert('Необходимо заполнить все поля!');
+    } else {
+      const note = {
+        id: generateUniqueId(),
+        title,
+        body,
+        priority: PRIORITY_TYPES.HIGH,
+      };
+      this._notes.push(note);
+      console.log(this._notes);
+      this.addListItem(this.refs.noteList, this.createListItem(note));
+      e.target.reset();
+    }
+  }
+
+  addListItem(listRef, note) {
+    listRef.appendChild(note);
+  }
+
+  onNoteList(e) {
+    const button = e.target.closest('BUTTON');
+    if(button.nodeName !== 'BUTTON') {
+      return
+    }
+    if (button.dataset.action === NOTE_ACTIONS.DELETE) {
+      this.removeListItem(button.closest('.note-list__item'))
+
+    }
+  }
+
+  removeListItem(note) {
+    this.deleteNote(note.dataset.id);
+    note.remove();
+  }
+
+
 }
 
+
+const generateUniqueId = () =>
+  Math.random()
+    .toString(36)
+    .substring(2, 15) +
+  Math.random()
+    .toString(36)
+    .substring(2, 15);
 
 const notepad = new Notepad(initialNotes);
 
@@ -264,3 +308,5 @@ console.log(notepad.notes);
 notepad.createNoteContent();
 notepad.createNoteFooter();
 notepad.createListItem();
+
+
