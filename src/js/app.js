@@ -39,12 +39,17 @@ const initialNotes = [
 
 
 
-const notepad = new Notepad(initialNotes);
 
-
-
-const view = new View(notepad);
-
+const view = new View();
+const notepad = new Notepad(initialNotes, view);
 view.renderNoteList(view.refs.noteList, notepad._notes);
+
+notepad.saveNote({title: 'tt', body: 'bb'}).then((note) => {
+  view.addListItem(view.refs.noteList, note);
+});
+
+// view.addListItem(view.refs.noteList, note)
+// ;
+
 
 

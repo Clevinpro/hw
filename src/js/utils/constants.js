@@ -11,6 +11,12 @@ export const ICON_TYPES = {
   ARROW_UP: 'expand_less',
 };
 
+export const NOTIFICATION_MESSAGES = {
+  NOTE_DELETED_SUCCESS: 'Заметка успешно удалена',
+  NOTE_ADDED_SUCCESS: 'Заметка успешно добавлена 🎉',
+  EDITOR_FIELDS_EMPTY: 'Заполните поля редактора',
+};
+
 export const NOTE_ACTIONS = {
   DELETE: 'delete-note',
   EDIT: 'edit-note',
