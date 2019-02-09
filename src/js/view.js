@@ -114,7 +114,7 @@ export default class View {
      * Возвращает: новый массив заметок, контент которых содержит подстроку
      */
     const query = e.target.value;
-    const filtred = this._notes.filter(el => {
+    const filtred = this._notepad._notes.filter(el => {
       if (
         el.title.toLowerCase().includes(query.toLowerCase()) ||
         el.body.toLowerCase().includes(query.toLowerCase())
@@ -129,7 +129,7 @@ export default class View {
     const title = this.refs.noteTitle.value;
     const body = this.refs.noteBody.value;
     console.log(body, title);
-    if (title === '' && body === '') {
+    if (title === '' || body === '') {
       return alert('Необходимо заполнить все поля!');
     } else {
       const note = {
