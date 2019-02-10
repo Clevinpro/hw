@@ -1,6 +1,7 @@
 import Notify from '../js/libs/notyf.min';
 import { PRIORITY_TYPES, NOTE_ACTIONS } from './utils/constants';
 const notify = new Notify();
+import { addNote, loadNotes, removeNote } from './services/api';
 
 
 export default class Notepad {
@@ -44,7 +45,7 @@ export default class Notepad {
           priority: PRIORITY_TYPES.HIGH,
         };
         this._notes.push(note);
-        localStorage.setItem('notes', JSON.stringify(this._notes));
+        addNote(note);
         notify.confirm('Заметки обновлены');
         return resolve(note);
 
@@ -72,11 +73,9 @@ export default class Notepad {
 
   deleteNote(note) {
     return new Promise((resolve, reject) => {
-      const newNotes = this._notes.filter(el => String(el.id) !== note.dataset.id);
-      console.log('newNotes', newNotes);
-      this._notes = newNotes;
+      this._notes = this._notes.filter(el => String(el.id) !== note.dataset.id);
+      removeNote(note.dataset.id);
       notify.confirm('Заметки обновлены');
-      localStorage.setItem('notes', JSON.stringify(newNotes));
       return resolve(note);
 
     }).then((note) => {

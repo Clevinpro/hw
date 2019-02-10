@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "webpack-dev-server --env.mode development --env.port 8080",
+    "server": "json-server --watch ./src/server/db.json --port 3004",
     "build": "webpack --env.mode production"
   },
   "author": "Alexander Repeta <alexander.repeta@gmail.com>",
